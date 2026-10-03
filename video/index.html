@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تاریخ ایران</title>
+<style>
+  @font-face { font-family: Vazirmatn; src: url(fonts/Vazirmatn-Light.ttf); font-weight: 300; }
+  @font-face { font-family: Vazirmatn; src: url(fonts/Vazirmatn-Regular.ttf); font-weight: 400 600; }
+  @font-face { font-family: Vazirmatn; src: url(fonts/Vazirmatn-Bold.ttf); font-weight: 700 800; }
+  @font-face { font-family: Vazirmatn; src: url(fonts/Vazirmatn-Black.ttf); font-weight: 900; }
+  html, body { margin: 0; background: #000; overflow: hidden; }
+  canvas { display: block; width: 100vw; height: auto; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="vendor/d3-array.min.js"></script>
+<script src="vendor/d3-geo.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/world.js"></script>
+<script src="scenes.js"></script>
+<script>
+  // بارگذاری فونت‌ها پیش از رندر
+  window.READY = Promise.all([300, 400, 700, 800, 900].map(w => document.fonts.load(`${w} 40px Vazirmatn`, 'ایران')))
+    .then(() => {
+      const s = document.createElement('script');
+      s.src = 'engine.js';
+      return new Promise(res => { s.onload = res; document.body.appendChild(s); });
+    })
+    .then(() => {
+      // پیش‌نمایش زنده در مرورگر (در حالت رندر غیرفعال است)
+      if (!location.search.includes('render')) {
+        const t0 = performance.now();
+        const m = location.hash.match(/t=([\d.]+)/);
+        const off = m ? +m[1] : 0;
+        const loop = () => { render(((performance.now() - t0) / 1000 + off) % TOTAL); requestAnimationFrame(loop); };
+        loop();
+      }
+    });
+</script>
+</body>
+</html>
