@@ -15,18 +15,20 @@ try { ({ chromium } = require('playwright')); }
 catch { ({ chromium } = require(path.join(execSync('npm root -g').toString().trim(), 'playwright'))); }
 
 const DIR = path.dirname(new URL(import.meta.url).pathname);
-const OUT = path.join(DIR, 'out');
+// برای شورت‌ها: PAGE (مسیر html)، OUT_DIR، VW و VH قابل تنظیم‌اند
+const OUT = process.env.OUT_DIR ? path.resolve(process.env.OUT_DIR) : path.join(DIR, 'out');
 fs.mkdirSync(OUT, { recursive: true });
 const FPS = +(process.env.FPS || 30);
 const WORKERS = +(process.env.WORKERS || Math.max(1, Math.min(4, os.cpus().length)));
 const args = process.argv.slice(2);
-const URL_ = 'file://' + path.join(DIR, 'index.html') + '?render';
+const URL_ = 'file://' + path.resolve(DIR, process.env.PAGE || 'index.html') + '?render';
+const VW = +(process.env.VW || 1920), VH = +(process.env.VH || 1080);
 
 const launchOpts = { args: ['--force-color-profile=srgb', '--disable-lcd-text'] };
 if (fs.existsSync('/opt/pw-browsers/chromium')) launchOpts.executablePath = undefined;
 
 async function openPage(browser) {
-  const ctx = await browser.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+  const ctx = await browser.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
   page.on('pageerror', (e) => console.error('page error:', e.message));
   await page.goto(URL_);

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>جنگ اِموها</title>
+<style>
+  @font-face { font-family: Vazirmatn; src: url(../../fonts/Vazirmatn-Regular.ttf); font-weight: 400 600; }
+  @font-face { font-family: Vazirmatn; src: url(../../fonts/Vazirmatn-Bold.ttf); font-weight: 700 800; }
+  @font-face { font-family: Vazirmatn; src: url(../../fonts/Vazirmatn-Black.ttf); font-weight: 900; }
+  html, body { margin: 0; background: #000; }
+  canvas { display: block; height: 100vh; width: auto; margin: auto; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="../../vendor/d3-array.min.js"></script>
+<script src="../../vendor/d3-geo.min.js"></script>
+<script src="../../vendor/topojson-client.min.js"></script>
+<script src="../../vendor/world.js"></script>
+<script src="voice.js"></script>
+<script>
+  window.READY = Promise.all([400, 700, 800, 900].map(w => document.fonts.load(`${w} 40px Vazirmatn`, 'اِمو')))
+    .then(() => new Promise(res => { const s = document.createElement('script'); s.src = 'scene.js'; s.onload = res; document.body.appendChild(s); }))
+    .then(() => {
+      if (!location.search.includes('render')) {
+        const t0 = performance.now();
+        const loop = () => { render(((performance.now() - t0) / 1000) % TOTAL); requestAnimationFrame(loop); };
+        loop();
+      }
+    });
+</script>
+</body>
+</html>

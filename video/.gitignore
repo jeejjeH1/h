@@ -3,3 +3,5 @@ node_modules/
 dist/*.mp4
 short/*.wav
 short/*.png
+shorts/*/out/
+shorts/*/voice/
