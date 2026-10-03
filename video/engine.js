@@ -345,7 +345,6 @@
 
   // ---------- پنل متنی دوره ----------
   const PX = 1845, PW = 720;
-  const BULLET_T0 = 3.6, BULLET_DT = 2.9;
 
   function bulletLayout(s) {
     if (s._layout) return s._layout;
@@ -426,7 +425,8 @@
     const L = bulletLayout(s);
     let y = L.top;
     s.bullets.forEach((b, i) => {
-      const t0 = BULLET_T0 + i * BULLET_DT;
+      const t0 = s.bulletTimes[i];
+      const next = i + 1 < s.bullets.length ? s.bulletTimes[i + 1] : s.dur;
       const ba = easeOut(prog(lt, t0, 0.7)) * out;
       const lines = L.items[i];
       const firstY = y + L.size;
@@ -434,7 +434,7 @@
         ctx.globalAlpha = ba;
         const off = (1 - ba) * 50;
         // نوار برجسته‌سازی برای نکتهٔ تازه
-        const fresh = clamp(1 - (lt - t0 - 0.4) / 2.2) * ba;
+        const fresh = clamp(1 - (lt - next + 0.6) / 0.8) * ba;
         if (fresh > 0) {
           const hg = ctx.createLinearGradient(PX - PW, 0, PX + 20, 0);
           hg.addColorStop(0, rgba(s.color, 0));
@@ -648,7 +648,7 @@
     ctx.shadowColor = GOLD; ctx.shadowBlur = 24;
     ctx.stroke(p);
     ctx.restore();
-    const fade = 1 - prog(lt, s.dur - 1.5, 1.5);
+    const fade = 1 - prog(lt, s.dur - 1.5, 1.5), Q = s.quoteT, C = s.ctaT;
     ctx.fillStyle = `rgba(3,5,12,${0.62 * prog(lt, 0.5, 1.2)})`;
     ctx.fillRect(0, 0, W, H);
 
@@ -656,17 +656,17 @@
     ctx.direction = 'rtl'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const lines = [
       ['ایران؛ سرزمینی که بارها فرو افتاد', 1.0],
-      ['و هر بار با فرهنگ و زبانش دوباره برخاست', 2.4]
+      ['و هر بار با فرهنگ و زبانش دوباره برخاست', Math.min(2.4, Q - 1.8)]
     ];
     lines.forEach(([txt, t0], i) => {
-      const a = easeOut(prog(lt, t0, 1.1)) * (1 - prog(lt, 8.6, 0.8));
+      const a = easeOut(prog(lt, t0, 1.1)) * (1 - prog(lt, C - 0.6, 0.8));
       ctx.globalAlpha = a;
       ctx.font = font(800, 62);
       ctx.fillStyle = '#f6efdd';
       ctx.fillText(txt, W / 2, 410 + i * 100 + (1 - a) * 24);
     });
-    ornamentLine(W / 2, 590, 380, prog(lt, 3.6, 1), 1 - prog(lt, 8.6, 0.8));
-    let a = easeOut(prog(lt, 4.2, 1.2)) * (1 - prog(lt, 8.6, 0.8));
+    ornamentLine(W / 2, 590, 380, prog(lt, Q - 0.6, 1), 1 - prog(lt, C - 0.6, 0.8));
+    let a = easeOut(prog(lt, Q, 1.2)) * (1 - prog(lt, C - 0.6, 0.8));
     ctx.globalAlpha = a;
     ctx.font = font(500, 44);
     ctx.fillStyle = shimmerFill(W / 2 - 400, W / 2 + 400, lt);
@@ -676,7 +676,7 @@
     ctx.fillText('فردوسی', W / 2, 745);
 
     // دعوت به سابسکرایب
-    const c = easeBack(clamp(prog(lt, 9.2, 0.8))) * fade;
+    const c = easeBack(clamp(prog(lt, C, 0.8))) * fade;
     if (c > 0) {
       ctx.globalAlpha = clamp(c);
       ctx.font = font(700, 46);
@@ -695,7 +695,7 @@
       ctx.font = font(900, 50);
       ctx.fillText('سابسکرایب کنید', 0, 4);
       ctx.restore();
-      const d = easeOut(prog(lt, 10.2, 1)) * fade;
+      const d = easeOut(prog(lt, C + 1, 1)) * fade;
       ctx.globalAlpha = d;
       ctx.font = font(400, 32);
       ctx.fillStyle = 'rgba(240,230,210,0.85)';
@@ -814,5 +814,5 @@
   window.render = render;
   window.renderThumbnail = renderThumbnail;
   window.TOTAL = total;
-  window.TIMELINE = scenes.map((s) => ({ type: s.type, title: s.title, num: s.num, start: s.start, dur: s.dur, bullets: s.bullets ? s.bullets.length : 0, date: s.date }));
+  window.TIMELINE = scenes.map((s) => ({ type: s.type, title: s.title, num: s.num, start: s.start, dur: s.dur, bullets: s.bullets ? s.bullets.length : 0, bulletTimes: s.bulletTimes || [], voice: s.voice || [], date: s.date }));
 })();

@@ -351,12 +351,49 @@
   ];
 
   // زمان‌بندی
+  // اگر صدای گوینده ساخته شده باشد (voice.js)، زمان هر نکته و طول هر صحنه از روی طول جمله‌ها تنظیم می‌شود.
+  const V = root.VOICE || null;
+  const N = root.NARRATION || null;
+  const GAP = 0.45;
   let t = 0, eraNo = 0, chapter = '';
   for (const s of scenes) {
+    s.voice = [];
+    const say = (key, at) => {
+      if (!V || V[key] == null) return at;
+      s.voice.push({ key, t: at });
+      return at + V[key];
+    };
     if (s.type === 'era') {
       s.no = ++eraNo;
-      s.dur = 6 + s.bullets.length * 2.9 + 4;
       s.chapter = chapter;
+      s.bulletTimes = s.bullets.map((_, i) => 3.6 + i * 2.9);
+      s.dur = 6 + s.bullets.length * 2.9 + 4;
+      if (V) {
+        let end = say(`era_${s.short}_intro`, 0.7);
+        s.bulletTimes = s.bullets.map((_, i) => {
+          const at = Math.max(end + GAP, i === 0 ? 3.0 : 0);
+          end = say(`era_${s.short}_b${i}`, at);
+          return at;
+        });
+        s.dur = Math.max(end + 2.6, s.bulletTimes[s.bulletTimes.length - 1] + 4);
+      }
+    } else if (s.type === 'intro' && V) {
+      let end = say('intro_0', 4.4);
+      end = say('intro_1', end + GAP);
+      s.dur = Math.max(s.dur, end + 1.4);
+    } else if (s.type === 'chapter' && V) {
+      const end = say(`chapter_${s.title}`, 0.9);
+      s.dur = Math.max(s.dur, end + 1.2);
+    } else if (s.type === 'outro') {
+      s.quoteT = 4.2; s.ctaT = 9.2;
+      if (V) {
+        let end = say('outro_0', 1.0);
+        s.quoteT = Math.max(4.2, end + 0.6);
+        end = say('outro_1', s.quoteT);
+        s.ctaT = Math.max(9.2, end + 1.4);
+        end = say('outro_2', s.ctaT + 0.3);
+        s.dur = Math.max(s.dur, s.ctaT + 6.8, end + 3);
+      }
     }
     if (s.type === 'chapter') chapter = s.num + ' · ' + s.title;
     s.start = t;

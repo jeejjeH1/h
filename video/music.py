@@ -216,7 +216,6 @@ def swell(dur):
 
 
 # ---------- چیدمان بر اساس خط زمان ----------
-BULLET_T0, BULLET_DT = 3.6, 2.9
 for i, s in enumerate(SCENES):
     st, du = s["start"], s["dur"]
     if i > 0:
@@ -233,8 +232,8 @@ for i, s in enumerate(SCENES):
         add(boom(), st + 0.5, gain=0.6)
         melody(st + 1.2, st + du, density=0.7, base=int(rng.integers(0, 3)))
         drums(st + 1.0, st + du)
-        for b in range(s["bullets"]):
-            add(chime(scale_freq(7 + (b % 3) * 2) * 2), st + BULLET_T0 + b * BULLET_DT, pan=0.4)
+        for b, bt in enumerate(s["bulletTimes"]):
+            add(chime(scale_freq(7 + (b % 3) * 2) * 2), st + bt, pan=0.4)
     elif s["type"] == "outro":
         melody(st + 0.5, st + 9, density=0.5, base=0)
         add(boom(), st + 9.2)
