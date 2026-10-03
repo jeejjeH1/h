@@ -1,32 +1,36 @@
-"""ساخت صدای گوینده از متن narration.js با صدای عصبی فارسی.
+"""ساخت صدای گوینده از متن narration.js با موتور متن‌باز Piper (اجرا روی همین سیستم).
 
 استفاده:
-    python3 tts.py                 # صدای پیش‌فرض: fa-IR-FaridNeural (مرد)
-    VOICE=fa-IR-DilaraNeural python3 tts.py   # صدای زن
+    python3 tts.py                              # صدای پیش‌فرض
+    PIPER_VOICE=fa_IR-amir-medium python3 tts.py   # صدای دیگر
 
 خروجی: out/voice/*.wav و فایل voice.js (طول هر جمله) که scenes.js از آن برای زمان‌بندی استفاده می‌کند.
-نیازمند دسترسی شبکه به speech.platform.bing.com
+نخستین اجرا مدل صدا را از huggingface.co دریافت می‌کند (در out/models نگه داشته می‌شود).
 """
-import asyncio
 import json
 import os
-import ssl
 import subprocess
+import sys
+import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-
-import edge_tts
-import edge_tts.communicate as comm
 
 DIR = Path(__file__).parent
 OUT = DIR / "out" / "voice"
 OUT.mkdir(parents=True, exist_ok=True)
-VOICE = os.environ.get("VOICE", "fa-IR-FaridNeural")
-RATE = os.environ.get("RATE", "-4%")
+MODELS = DIR / "out" / "models"
+MODELS.mkdir(parents=True, exist_ok=True)
+VOICE = os.environ.get("PIPER_VOICE", "fa_IR-gyro-medium")
+SPEED = float(os.environ.get("LENGTH_SCALE", "1.05"))  # بزرگ‌تر = آهسته‌تر
 
-# استفاده از گواهی پراکسی در صورت وجود
-ca = os.environ.get("SSL_CERT_FILE") or "/root/.ccr/ca-bundle.crt"
-if Path(ca).exists():
-    comm._SSL_CTX = ssl.create_default_context(cafile=ca)
+lang, name, quality = VOICE.split("-")
+base = f"https://huggingface.co/rhasspy/piper-voices/resolve/main/{lang.split('_')[0]}/{lang}/{name}/{quality}/{VOICE}"
+model = MODELS / f"{VOICE}.onnx"
+for suffix in (".onnx", ".onnx.json"):
+    dst = MODELS / f"{VOICE}{suffix}"
+    if not dst.exists():
+        print("دریافت", dst.name)
+        urllib.request.urlretrieve(base + suffix, dst)
 
 nar = json.loads(subprocess.check_output(
     ["node", "-e", "require('./narration.js'); process.stdout.write(JSON.stringify(globalThis.NARRATION))"], cwd=DIR))
@@ -45,36 +49,28 @@ for i, t in enumerate(nar["outro"]):
 
 keys = list(lines)
 fname = {k: f"{n:03d}" for n, k in enumerate(keys)}
+SIG = f"{VOICE}|{SPEED}|"
 
 
-async def synth(k, sem):
+def synth(k):
     wav = OUT / f"{fname[k]}.wav"
-    if wav.exists() and (OUT / f"{fname[k]}.txt").read_text() == VOICE + RATE + lines[k]:
+    sig = OUT / f"{fname[k]}.txt"
+    if wav.exists() and sig.exists() and sig.read_text() == SIG + lines[k]:
         return
-    mp3 = OUT / f"{fname[k]}.mp3"
-    async with sem:
-        for attempt in range(4):
-            try:
-                await edge_tts.Communicate(lines[k], VOICE, rate=RATE).save(str(mp3))
-                break
-            except Exception as e:  # تلاش دوباره در خطای شبکه
-                if attempt == 3:
-                    raise
-                await asyncio.sleep(2 ** attempt)
-    # حذف سکوت ابتدا و انتها، تبدیل به wav
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp3), "-af",
+    raw = OUT / f"{fname[k]}.raw.wav"
+    subprocess.run([sys.executable, "-m", "piper", "-m", str(model), "-f", str(raw),
+                    "--length-scale", str(SPEED), "--sentence-silence", "0.3"],
+                   input=lines[k].encode(), check=True, capture_output=True)
+    # حذف سکوت ابتدا و انتها، تبدیل به ۴۸ کیلوهرتز
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-af",
                     "silenceremove=start_periods=1:start_threshold=-50dB,areverse,silenceremove=start_periods=1:start_threshold=-50dB,areverse",
                     "-ar", "48000", "-ac", "1", str(wav)], check=True)
-    (OUT / f"{fname[k]}.txt").write_text(VOICE + RATE + lines[k])
-    mp3.unlink()
+    raw.unlink()
+    sig.write_text(SIG + lines[k])
 
 
-async def main():
-    sem = asyncio.Semaphore(4)
-    await asyncio.gather(*(synth(k, sem) for k in keys))
-
-
-asyncio.run(main())
+with ThreadPoolExecutor(4) as ex:
+    list(ex.map(synth, keys))
 
 dur = {}
 for k in keys:
