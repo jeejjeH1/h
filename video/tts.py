@@ -47,6 +47,16 @@ for short, e in nar["eras"].items():
 for i, t in enumerate(nar["outro"]):
     lines[f"outro_{i}"] = t
 
+# فرهنگ تلفظ: افزودن اعراب به واژه‌هایی که موتور صدا اشتباه می‌خواند
+PRON = json.loads((DIR / "pronounce.json").read_text())
+import re as _re
+_pat = _re.compile("|".join(sorted(map(_re.escape, PRON), key=len, reverse=True)))
+_fa = "\u0600-\u06FF\u200c"
+def fix(text):
+    # فقط واژه‌های کامل جایگزین می‌شوند
+    return _re.sub(f"(?<![{_fa}])(" + _pat.pattern + f")(?![{_fa}])", lambda m: PRON[m.group(1)], text)
+lines = {k: fix(v) for k, v in lines.items()}
+
 keys = list(lines)
 fname = {k: f"{n:03d}" for n, k in enumerate(keys)}
 SIG = f"{VOICE}|{SPEED}|"
