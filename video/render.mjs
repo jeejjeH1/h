@@ -47,6 +47,19 @@ if (args[0] === '--stills') {
   process.exit(0);
 }
 
+if (args[0] === '--thumb2') {
+  const page = await openPage(browser);
+  for (const v of ['a', 'b']) {
+    await page.evaluate((v) => renderThumbnail2(v), v);
+    const big = path.join(OUT, `thumb2_${v}_1080.png`);
+    await page.screenshot({ path: big });
+    execSync(`ffmpeg -y -loglevel error -i "${big}" -vf scale=1280:720:flags=lanczos "${path.join(OUT, `thumbnail_${v}.png`)}"`);
+  }
+  console.log('thumbnails ok');
+  await browser.close();
+  process.exit(0);
+}
+
 if (args[0] === '--thumb') {
   const page = await openPage(browser);
   await page.evaluate(() => renderThumbnail());

@@ -811,6 +811,104 @@
     drawParticles(5, 1);
   }
 
+
+  // تامنیل نسخهٔ ۲: مرزهای دوره‌های مختلف روی هم + متن درشت
+  function renderThumbnail2(variant = 'a') {
+    const cam = variant === 'a' ? { c: [55.5, 30.2], s: 1320 } : { c: [53.6, 32.4], s: 2050 };
+    const bg = ctx.createRadialGradient(560, 520, 50, 700, 540, 1400);
+    bg.addColorStop(0, '#1b2747'); bg.addColorStop(0.6, '#0a1023'); bg.addColorStop(1, '#020309');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    drawBaseMap(cam, 0.9);
+    const era = (short) => scenes.find((x) => x.short === short);
+    const iranR = { country: 'Iran', from: [53, 32.5], at: [53, 32.5] };
+    if (variant === 'a') {
+      const layers = [
+        ['هخامنشی', '#f2b632'], ['ساسانی', '#e2483f'], ['صفوی', '#2fc4b2']
+      ];
+      layers.forEach(([sh, col]) => {
+        const r = era(sh).regions[0];
+        setCam(cam);
+        const p = polyPath(r.poly);
+        ctx.save();
+        ctx.clip(geoPath2D('land', cam, land));
+        ctx.fillStyle = rgba(col, 0.16); ctx.fill(p);
+        ctx.shadowColor = col; ctx.shadowBlur = 22;
+        ctx.strokeStyle = col; ctx.lineWidth = 5; ctx.stroke(p);
+        ctx.restore();
+      });
+    }
+    // ایران امروز درخشان
+    const ip = geoPath2D('c:Iran', cam, byName.Iran);
+    ctx.save();
+    const ig = ctx.createLinearGradient(0, 200, 0, 900);
+    ig.addColorStop(0, '#ffe08a'); ig.addColorStop(1, '#d4891e');
+    ctx.fillStyle = ig; ctx.globalAlpha = variant === 'a' ? 0.92 : 0.95;
+    ctx.shadowColor = 'rgba(255,200,90,0.9)'; ctx.shadowBlur = 60;
+    ctx.fill(ip);
+    ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#fff3cf'; ctx.lineWidth = 4; ctx.stroke(ip);
+    ctx.restore();
+
+    // تیره‌سازی سمت راست برای متن
+    const v = ctx.createLinearGradient(700, 0, W, 0);
+    v.addColorStop(0, 'rgba(2,3,9,0)'); v.addColorStop(0.35, 'rgba(2,3,9,0.82)'); v.addColorStop(1, 'rgba(2,3,9,0.95)');
+    ctx.fillStyle = v; ctx.fillRect(700, 0, W - 700, H);
+
+    ctx.save();
+    ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+    const X = 1860;
+    ctx.font = font(900, 120);
+    ctx.fillStyle = '#ffffff';
+    ctx.lineWidth = 14; ctx.strokeStyle = '#000'; ctx.lineJoin = 'round';
+    ctx.strokeText('تاریخ کامل', X, 250); ctx.fillText('تاریخ کامل', X, 250);
+    ctx.font = font(900, 300);
+    const g = ctx.createLinearGradient(0, 300, 0, 560);
+    g.addColorStop(0, '#fff1b8'); g.addColorStop(0.5, '#ffc93c'); g.addColorStop(1, '#e08a12');
+    ctx.lineWidth = 18; ctx.strokeText('ایران', X, 560);
+    ctx.shadowColor = 'rgba(255,190,60,0.7)'; ctx.shadowBlur = 50;
+    ctx.fillStyle = g; ctx.fillText('ایران', X, 560);
+    ctx.shadowBlur = 0;
+    // نوار زرد
+    ctx.font = font(900, 76);
+    const tx = '۵۰۰۰ سال در ۱۴ دقیقه';
+    const tw = ctx.measureText(tx).width;
+    ctx.save();
+    ctx.translate(X - tw / 2 - 30, 690);
+    ctx.rotate(-0.03);
+    ctx.fillStyle = '#ffd400';
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 24;
+    ctx.fillRect(-tw / 2 - 34, -70, tw + 68, 112);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#111';
+    ctx.textAlign = 'center';
+    ctx.fillText(tx, 0, 12);
+    ctx.restore();
+    if (variant === 'a') {
+      // راهنمای رنگ‌ها
+      const chips = [['هخامنشیان', '#f2b632'], ['ساسانیان', '#e2483f'], ['صفویان', '#2fc4b2'], ['ایران امروز', '#ffd36a']];
+      ctx.font = font(800, 40);
+      let cx = X;
+      chips.forEach(([n, col]) => {
+        const w = ctx.measureText(n).width;
+        ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(cx - 14, 868, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#f4ecd8';
+        ctx.fillText(n, cx - 38, 882);
+        cx -= w + 90;
+      });
+    } else {
+      ctx.font = font(800, 54);
+      ctx.fillStyle = '#f4ecd8';
+      ctx.fillText('از ایلام و کوروش تا امروز', X, 880);
+    }
+    ctx.restore();
+    // وینیت
+    const vg = ctx.createRadialGradient(W / 2, H / 2, 600, W / 2, H / 2, 1200);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  }
+  window.renderThumbnail2 = renderThumbnail2;
+
   window.render = render;
   window.renderThumbnail = renderThumbnail;
   window.TOTAL = total;
