@@ -1,0 +1,123 @@
+<!doctype html><meta charset="utf-8">
+<style>
+@font-face{font-family:V;src:url(../fonts/Vazirmatn-Black.ttf);font-weight:900}
+@font-face{font-family:V;src:url(../fonts/Vazirmatn-Bold.ttf);font-weight:700}
+html,body{margin:0;background:#000}
+.t{width:1280px;height:720px;position:relative;overflow:hidden;font-family:V;direction:rtl;
+  background:radial-gradient(ellipse at 30% 45%,#1b4f9c 0%,#0b1d4a 35%,#060a1f 70%,#020309 100%)}
+svg.bg{position:absolute;inset:0}
+.robot{position:absolute;left:-10px;top:10px;width:640px;height:720px}
+.txt{position:absolute;right:40px;top:40px;width:640px;text-align:center}
+.l1{font-weight:900;font-size:78px;color:#fff;line-height:1.1;text-shadow:0 6px 0 #000,0 0 24px #000}
+.l2{font-weight:900;font-size:158px;line-height:1.02;margin-top:4px;
+  background:linear-gradient(180deg,#ffffff 0%,#fff3a0 45%,#ffc21a 100%);-webkit-background-clip:text;color:transparent;
+  -webkit-text-stroke:3px #1a0f00;filter:drop-shadow(0 8px 0 #000) drop-shadow(0 0 30px rgba(255,200,40,.55))}
+.l3{display:inline-block;margin-top:22px;font-weight:900;font-size:60px;color:#fff;background:#e5262c;padding:6px 34px 12px;border-radius:14px;
+  transform:rotate(-3deg);box-shadow:0 10px 0 #7a0d10,0 0 40px rgba(229,38,44,.6)}
+.l3 b{font-family:Arial Black,Arial;font-weight:900;letter-spacing:1px}
+.q{position:absolute;right:70px;bottom:46px;font-weight:900;font-size:50px;color:#7ff6ff;text-shadow:0 4px 0 #000,0 0 20px #2fd8ff}
+</style>
+<div class="t">
+<svg class="bg" viewBox="0 0 1280 720">
+  <defs>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5ff2ff" stop-opacity=".85"/><stop offset=".45" stop-color="#2a8cff" stop-opacity=".35"/><stop offset="1" stop-color="#2a8cff" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <circle cx="320" cy="350" r="380" fill="url(#halo)"/>
+  <g id="rays" opacity=".18"></g>
+  <g id="circ" stroke="#4fe3ff" stroke-width="2.5" fill="none" opacity=".45"></g>
+  <g id="dots"></g>
+</svg>
+
+<svg class="robot" viewBox="0 0 640 720">
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#e3eaf5"/><stop offset=".7" stop-color="#9aa8c2"/><stop offset="1" stop-color="#4b5878"/>
+    </linearGradient>
+    <linearGradient id="metal2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cfd9ea"/><stop offset="1" stop-color="#5b6886"/>
+    </linearGradient>
+    <linearGradient id="visor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1b2a4f"/><stop offset=".5" stop-color="#05091a"/><stop offset="1" stop-color="#0c1530"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="eye" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffffff"/><stop offset=".35" stop-color="#9ffcff"/><stop offset="1" stop-color="#00c8ff"/></radialGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="10" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="rim" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="drop"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".7"/></filter>
+  </defs>
+
+  <!-- گردن -->
+  <g filter="url(#drop)">
+    <rect x="245" y="520" width="150" height="160" rx="18" fill="url(#metal2)"/>
+    <g fill="#2d3754" opacity=".8"><rect x="245" y="560" width="150" height="10"/><rect x="245" y="595" width="150" height="10"/><rect x="245" y="630" width="150" height="10"/></g>
+    <path d="M150 720 Q160 650 245 640 L395 640 Q480 650 490 720 Z" fill="url(#metal)"/>
+  </g>
+
+  <!-- لبهٔ نوری پشت سر -->
+  <path d="M320 70 C470 70 545 175 545 320 C545 430 500 520 420 560 L220 560 C140 520 95 430 95 320 C95 175 170 70 320 70 Z" fill="none" stroke="#4ff0ff" stroke-width="18" filter="url(#rim)" opacity=".9"/>
+  <!-- سر -->
+  <g filter="url(#drop)">
+    <path d="M320 70 C470 70 545 175 545 320 C545 430 500 520 420 560 L220 560 C140 520 95 430 95 320 C95 175 170 70 320 70 Z" fill="url(#metal)"/>
+    <!-- گوش‌ها -->
+    <g>
+      <circle cx="92" cy="330" r="46" fill="url(#metal2)" stroke="#2d3754" stroke-width="4"/>
+      <circle cx="92" cy="330" r="24" fill="#071028" stroke="#4fe3ff" stroke-width="6" filter="url(#glow)"/>
+      <circle cx="548" cy="330" r="46" fill="url(#metal2)" stroke="#2d3754" stroke-width="4"/>
+      <circle cx="548" cy="330" r="24" fill="#071028" stroke="#4fe3ff" stroke-width="6" filter="url(#glow)"/>
+    </g>
+    <!-- درزها -->
+    <path d="M320 72 L320 175" stroke="#5a6888" stroke-width="4"/>
+    <path d="M160 200 Q320 150 480 200" stroke="#5a6888" stroke-width="3" fill="none"/>
+    <!-- صفحهٔ صورت (ویزور) -->
+    <path d="M130 270 Q320 215 510 270 L500 380 Q320 430 140 380 Z" fill="url(#visor)" stroke="#11182e" stroke-width="5"/>
+    <path d="M150 280 Q320 232 490 280 L488 300 Q320 255 152 300 Z" fill="url(#shine)" opacity=".6"/>
+    <!-- چشم‌ها -->
+    <g filter="url(#glow)">
+      <ellipse cx="235" cy="322" rx="56" ry="30" fill="url(#eye)"/>
+      <ellipse cx="405" cy="322" rx="56" ry="30" fill="url(#eye)"/>
+    </g>
+    <ellipse cx="220" cy="312" rx="14" ry="7" fill="#fff" opacity=".9"/>
+    <ellipse cx="390" cy="312" rx="14" ry="7" fill="#fff" opacity=".9"/>
+    <!-- دهان LED -->
+    <g fill="#4ff0ff" filter="url(#glow)">
+      <rect x="245" y="462" width="20" height="10" rx="4"/><rect x="275" y="455" width="20" height="17" rx="4"/><rect x="305" y="448" width="20" height="24" rx="4"/>
+      <rect x="335" y="452" width="20" height="20" rx="4"/><rect x="365" y="458" width="20" height="14" rx="4"/>
+    </g>
+    <!-- براق‌کنندهٔ بالای سر -->
+    <path d="M200 120 Q300 85 400 110" stroke="#fff" stroke-width="16" stroke-linecap="round" fill="none" opacity=".55"/>
+    <!-- خطوط مدار روی گونه -->
+    <g stroke="#4fe3ff" stroke-width="4" fill="none" filter="url(#glow)" opacity=".9">
+      <path d="M150 420 L190 420 L215 450"/><circle cx="215" cy="452" r="6" fill="#4fe3ff"/>
+      <path d="M490 420 L450 420 L425 450"/><circle cx="425" cy="452" r="6" fill="#4fe3ff"/>
+    </g>
+  </g>
+</svg>
+
+<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,4,14,0) 38%,rgba(2,4,14,.72) 60%,rgba(2,4,14,.85) 100%)"></div>
+<div class="txt">
+  <div class="l1">تاریخ کامل</div>
+  <div class="l2">هوش مصنوعی</div>
+  <div class="l3">از رؤیا تا <b>ChatGPT</b></div>
+</div>
+<div class="q">چطور شروع شد؟</div>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+const h=(i)=>{const s=Math.sin(i*127.1+311.7)*43758.5453;return s-Math.floor(s);};
+const rays=document.getElementById('rays');
+for(let i=0;i<20;i++){const a=i/20*Math.PI*2;const p=document.createElementNS(NS,'path');
+  const x=320,y=350;p.setAttribute('d',`M${x} ${y} L${x+Math.cos(a)*1400} ${y+Math.sin(a)*1400} L${x+Math.cos(a+.08)*1400} ${y+Math.sin(a+.08)*1400}Z`);
+  p.setAttribute('fill','#7fe9ff');rays.appendChild(p);}
+const circ=document.getElementById('circ');
+for(let i=0;i<34;i++){let x=Math.round(h(i)*32)*40,y=Math.round(h(i+50)*18)*40;let d=`M${x} ${y}`;
+  for(let k=0;k<5;k++){const dir=Math.floor(h(i*7+k)*4),len=(2+Math.floor(h(i*3+k)*5))*40;
+    if(dir==0)x+=len;else if(dir==1)x-=len;else if(dir==2)y+=len;else y-=len;d+=` L${x} ${y}`;}
+  const p=document.createElementNS(NS,'path');p.setAttribute('d',d);circ.appendChild(p);
+  const c=document.createElementNS(NS,'circle');c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',5);c.setAttribute('fill','#4fe3ff');circ.appendChild(c);}
+const dots=document.getElementById('dots');
+for(let i=0;i<70;i++){const c=document.createElementNS(NS,'circle');c.setAttribute('cx',h(i+3)*1280);c.setAttribute('cy',h(i+9)*720);
+  c.setAttribute('r',1+h(i+4)*3.5);c.setAttribute('fill','#bff6ff');c.setAttribute('opacity',.25+h(i+5)*.6);dots.appendChild(c);}
+</script>
