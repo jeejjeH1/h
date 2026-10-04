@@ -5,3 +5,5 @@ short/*.wav
 short/*.png
 shorts/*/out/
 shorts/*/voice/
+ai/out/
+ai/voice/
